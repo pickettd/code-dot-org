@@ -63,6 +63,31 @@ social:
     filter: blur(2px);
   }
 
+  .arrow_under_box:after {
+    bottom: 100%;
+    left: 50px;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-color: rgba(54, 72, 84, 0);
+    border-bottom-color: rgb(88, 103, 113);
+    border-width: 10px;
+    margin-left: -10px;
+  }
+
+  .categoryoptions {
+    background-color: rgb(88, 103, 113); 
+    color: white; 
+    padding: 10px; 
+    text-align: left; 
+    margin-top: 10px; 
+    border-radius: 0px; 
+    width: 100%;
+  }
+
 .supreme-container
   #top{style: "position:relative; width:100%; overflow:hidden"}
     - heroes = DB[:cdo_homepage].where(type_s: "widehero", active_s: ["show","hide"], site_s: [request.site,"both"]).all
@@ -119,35 +144,149 @@ social:
             %div{style: "height:40px"}
 
     #bottomhero{style:"position:absolute; bottom:0px; width:100%; background-color:rgba(0,0,0,0.2)"}
-      #petition_message{:style=>"font-size: 17px; line-height:28px; font-family: 'Gotham 5r', sans-serif; padding: 5px; color:white; text-align:center"}=I18n.t:petition_message
+      #petition_message{:style=>"font-size: 17px; line-height:28px; font-family: 'Gotham 5r', sans-serif; padding: 5px; color:white; text-align:center; padding-bottom:0px"}=I18n.t:petition_message
+
+      - if DB[:cdo_homepage].where(type_s: "petition")
+        = view :petition_expand
+
+
+  -# ### petition ###
+
+  %script{:src=>"/js/jquery.placeholder.js"}
+
+
+    %div{style: 'clear:both;'}
+
+  -# if DB[:cdo_homepage].where(type_s: "petition")
+    = view :petition_expand
+
+  -# ### user hero ###
+
+  - if request.site == 'code.org'
+    #user_hero
+
+  -# ### top slots ###
 
   #slots{style: "text-align:center"}
     - DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: [request.site,"both"]).all do |entry|
       - display = entry[:active_s] == "hide" ? "none" : "block"
       .slot{style: "display: #{display}"}
         = view :homepage_quarterslot, entry: entry
-    -# DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: [request.site,"both"]).all do |entry|
+
+  -#bonusstrips
+    %div{style: "clear:both"}
+    %h1{style: "margin-top:20px; margin-bottom:0px"} Students
+
+    #slots{style: "text-align:center"}
+      - entries = DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: ["csedweek.org","both"]).all
+      - entries.shuffle!
+      - entries.each do |entry|
+        - display = entry[:active_s] == "hide" ? "none" : "block"
+        .slot{style: "display: #{display}"}
+          = view :homepage_quarterslot, entry: entry
+
+    %div{style: "clear:both"}
+    %h1{style: "margin-top:20px; margin-bottom:0px; "} Educators
+
+    #slots{style: "text-align:center"}
+      - entries = DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: ["csedweek.org","both"]).all
+      - entries.shuffle!
+      - entries.each do |entry|
+        - display = entry[:active_s] == "hide" ? "none" : "block"
+        .slot{style: "display: #{display}"}
+          = view :homepage_quarterslot, entry: entry
+
+    %div{style: "clear:both"}
+    %h1{style: "margin-top:20px; margin-bottom:0px"} Advocates
+
+    #slots{style: "text-align:center"}
+      - entries = DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: ["csedweek.org","both"]).all
+      - entries.shuffle!
+      - entries.each do |entry|
+        - display = entry[:active_s] == "hide" ? "none" : "block"
+        .slot{style: "display: #{display}"}
+          = view :homepage_quarterslot, entry: entry
+
+
+
+  -# ### below the fold ###
+
+
+  %div{style: "clear:both"}
+  %h1 Information
+  #bixboxbar.categoryoptions.arrow_under_box
+    -# {style: "margin-top:40px; background-color: rgb(88, 103, 113); color:white; /* color: rgb(88, 103, 113); */ width:100%; padding:5px"}
+    %span{style: "margin-left:20px; margin-right:20px"} Students
+    %span{style: "margin-left:20px; margin-right:20px; border-bottom: solid 2px rgb(255, 128, 0);"} Educators
+    %span{style: "margin-left:20px; margin-right:20px"} Advocates
+    %span{style: "margin-left:20px; margin-right:20px"} Everybody
+
+  #slots{style: "text-align:center; overflow:hidden; background-color: rgba(0,0,0,0.05)"}
+    - entries = DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: ["csedweek.org","both"]).all
+    - entries.shuffle!
+    - entries.each do |entry|
       - display = entry[:active_s] == "hide" ? "none" : "block"
       .slot{style: "display: #{display}"}
-        = view :homepage_halfslot, entry: entry
+        = view :homepage_quarterslot, entry: entry
 
-  %script{:src=>"/js/jquery.placeholder.js"}
+  -#bigboxes{style: "position:relative; overflow:hidden; height:300px"}
 
-  - if request.site == 'code.org'
-    #user_hero
+    #bigbox1.div.col-50{style: "padding:5px; position:absolute; top:0; left:0; display:none"}
+      .bigbox{style: "background-color: rgba(0, 178, 192, 0.1); padding:30px"}
+        %p{style: "font-size:24px; margin-left:-5px"} Students (Learn)
 
-    %div{style: 'clear:both;'}
+        %p Try the Hour of Code. 100M served
+        %p Code Studio
+        %p Find a local class or workshop
+        %p Other places to learn
+        %p possibly highlight a new tutorial
 
-  - if DB[:cdo_homepage].where(type_s: "petition")
-    = view :petition_expand
+
+    #bigbox2.col-50{style: "padding:5px; position:absolute; top:0; left:0; "}
+      .bigbox{style: "background-color: rgba(0, 178, 192, 0.1); padding:30px;"}
+        %p{style: "font-size:24px; margin-left:-5px; "} Educators (Teach)
+
+        %p Host an Hour of Code
+        %p Learn about our K-5 program
+        %p Find a K-5 workshop
+        %p District partnership for HS + MS
+        %p See our full K-12 curriculum
+        %p Inspire your students
+        %p 3rd party options for CS in your school
+
+    #bigbox3.col-50{style: "padding:5px; position:absolute; top:0; left:0; display:none"}
+      .bigbox{style: "background-color: rgba(0, 178, 192, 0.1); padding:30px"}
+        %p{style: "font-size:24px; margin-left:-5px"} Advocates (Stats & Help us)
+
+        %p US map, support CS in your state
+        %p Donate to Code.org
+        %p Buy a t-shirt or hat
+        %p Advocacy tools
+        %p Become a volunteer (longer term this will be a bigger deal)
+
+    #bigbox4.col-50{style: "padding:5px; position:absolute; top:0; left:0; display:none"}
+      .bigbox{style: "background-color: rgba(0, 178, 192, 0.1); padding:30px"}
+        %p{style: "font-size:24px; margin-left:-5px"} Also
+
+        %p Recent news module
+        %p Twitter stream
+        %p Gallery of student creations
+
+
+
+  %div{style: "clear:both"}
+
+  -# ### donor silder ###
 
   -if request.site != 'csedweek.org'
     .container_responsive{style: "margin-top:40px; margin-bottom:40px"}
       #donor_slider.desktop-feature{:style=>'width: 100%'}
         = view :donor_slider
 
-= view 'popup_window.js'
 
+-# ### popup video and sharing ###
+
+= view 'popup_window.js'
 
 - video_code = nil
 - download_filename = nil
