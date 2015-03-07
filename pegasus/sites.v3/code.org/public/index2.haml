@@ -138,10 +138,52 @@ social:
   %div{style: 'clear:both;'}
 
 
-  .container_responsive_not{style: "margin-top:40px"}
+  .container_responsive_not{style: "margin-top:40px; "}
+    %h1{style: "margin-top:80px; margin-bottom:80px; margin-left:15px; text-align:center; color: rgba(0,0,0,0.5)"} Code.org offers something for everybody
+    #othersblock{style: "background-color:rgba(0,0,0,0.05); overflow:hidden; padding-top:20px; padding-bottom:30px;     border-top-style: solid; border-top-color: rgba(0,0,0,0.2); border-top-width: 1px; border-bottom-style: solid; border-bottom-color: rgba(0,0,0,0.2); border-bottom-width:1px"}
+      -# {name:"Others", bgc: "0, 192, 52"}
+      - [{name: "Students", bgc: "0, 178, 192"}, {name:"Teachers", bgc: "178, 0, 192"}, {name:"Advocates", bgc: "178, 192, 0"}, {name:"Everyone", bgc: "0, 192, 52"} ].each_with_index do |row, rowindex|
+     
+        - if false && rowindex == 0
+          #column2content.col-25
+            .greybox{style: "background-color: rgba(0,0,0,0.4); color:white; width:100%; padding:10px; font-size:24px; text-align:left; font-family: 'Gotham 4r', sans-serif;"}
+              News
+            .remainder{style: "padding:15px"}
+              -count = 0
+              -DB[:cdo_news_items].where(site_s:'all').or(site_s:request.site).limit(7).each do |value|
+                -unless count == 0
+                  %br/
+                  %br/
+                  -#%hr.narrow_hr
+                %a{:href=>value[:url_s], :target=>'_blank'}
+                  =value[:heading_s]
+                %br
+                = value[:date_dt]
+                = '//'
+                = value[:publication_s]
+                -count += 1
+              %br
+              %br
+              %a{:href=>'/about/news', :style=>'float:right'} See all
+
+        - else
+
+          - slots = DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: [request.site,"both"]).all 
+          - slots.shuffle!
+          - slots.first(3).each_with_index do |entry, index|
+            - display = entry[:active_s] == "hide" ? "none" : "block"
+            .slot{style: "display: #{display}"}
+              - if index == 0
+                =view :homepage_linkslot, entry: entry, row_name: row[:name], bgc: row[:bgc]
+              -# else
+                = view :homepage_dimquarterslot, entry: entry, grey: true, bgc: row[:bgc]
+
+
+
+  -# .container_responsive_not{style: "margin-top:40px"}
     %h1{style: "margin-top:20px; margin-bottom:10px; margin-left:15px"} More
     - [{name: "Students", bgc: "0, 178, 192"}, {name:"Teachers", bgc: "178, 0, 192"}, {name:"Advocates", bgc: "178, 192, 0"}].each_with_index do |row, rowindex|
-      .slotrow{style: "padding:0px 10px 0px 10px; background-color: rgba(0,0,0,0); /*background-color: rgba(#{row[:bgc]}, 0.8); */ margin-bottom:30px; overflow:hidden"}
+      .slotrow{style: "display: inline-block;padding:0px 10px 0px 10px; background-color: rgba(0,0,0,0); /*background-color: rgba(#{row[:bgc]}, 0.8); */ margin-bottom:30px; overflow:hidden"}
         -# %h1{style: "margin-top:10px; margin-bottom:5px"} Students
         - slots = DB[:cdo_homepage].where(type_s: "slot", active_s: ["show","hide"], site_s: [request.site,"both"]).all 
         - slots.shuffle!
@@ -150,7 +192,7 @@ social:
           .slot{style: "display: #{display}"}
             - if index == 0
               =view :homepage_linkslot, entry: entry, row_name: row[:name], bgc: row[:bgc]
-            - else
+            -# else
               = view :homepage_dimquarterslot, entry: entry, grey: true, bgc: row[:bgc]
 
   %div{style: 'clear:both;'}
