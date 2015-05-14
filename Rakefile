@@ -187,7 +187,7 @@ task :build => ['build:all']
 namespace :install do
 
   task :apps do
-    if rack_env?(:development) && !CDO.chef_managed
+    if rack_env?(:development)# && !CDO.chef_managed
       Dir.chdir(apps_dir) do
         apps_build = CDO.use_my_apps ? apps_dir('build/package') : 'apps-package'
         RakeUtils.ln_s apps_build, dashboard_dir('public','blockly')
@@ -206,18 +206,18 @@ namespace :install do
   end
 
   task :dashboard do
-    if rack_env?(:development) && !CDO.chef_managed
+    if rack_env?(:development)# && !CDO.chef_managed
       Dir.chdir(dashboard_dir) do
         RakeUtils.bundle_install
         create_database CDO.dashboard_db_writer
-        RakeUtils.rake 'db:migrate'
+        RakeUtils.rake 'db:schema:load'
         RakeUtils.rake 'seed:all'
       end
     end
   end
 
   task :pegasus do
-    if rack_env?(:development) && !CDO.chef_managed
+    if rack_env?(:development)# && !CDO.chef_managed
       Dir.chdir(pegasus_dir) do
         RakeUtils.bundle_install
         create_database CDO.pegasus_db_writer
