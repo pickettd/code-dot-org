@@ -1,0 +1,30 @@
+{
+  "name": "vagrant_dev",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "cdo-repository": {
+      "repository": "https://github.com/code-dot-org/code-dot-org.git",
+      "timeout": 1200
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+      "recipe[cdo-mysql::server]",
+      "recipe[apt]",
+      "recipe[cdo-authorized-keys]",
+      "recipe[cdo-awscli]",
+      "recipe[cdo-home-ubuntu]",
+      "recipe[cdo-ruby-2.0]",
+      "recipe[cdo-mysql::client]",
+      "recipe[cdo-newrelic]",
+      "recipe[cdo-apps]",
+      "recipe[cdo-solr]"
+  ],
+  "env_run_lists": {
+
+  }
+}
