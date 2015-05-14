@@ -26,7 +26,7 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/home/vagrant/development",
     owner: "vagrant",
     group: "vagrant",
-    mount_options: ["dmode=775,fmode=664"]
+    mount_options: ["dmode=775,fmode=775"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -51,16 +51,14 @@ Vagrant.configure(2) do |config|
     sudo aptitude update
     sudo aptitude install -q -y ruby-dev build-essential
 
-    cd ~/development
-    mkdir ~/.chef
-
     # The following line installs chefdk to get the berks tools,
     # Chef can also be installed from the downloaded install script: sudo bash ./install.sh -v 11.16.4
-    [ ! -f /usr/bin/berks ] && sudo wget -N --quiet opscode.com/chef/install.sh && sudo bash ./install.sh -P chefdk -v 0.4.0
+    sudo wget -N --quiet opscode.com/chef/install.sh && sudo bash ./install.sh -P chefdk -v 0.4.0
 
     sudo gem install chef-zero --no-rdoc --no-ri
     sudo gem install chef -v 11.16.4 --no-rdoc --no-ri
 
+    mkdir ~/.chef
     openssl genrsa 2048 > ~/.chef/$CDO_CHEF_NODE_NAME.pem 2>/dev/null
     sudo cp -f ~/.chef/$CDO_CHEF_NODE_NAME.pem /etc/chef/validation.pem
     sudo cp -f ~/.chef/$CDO_CHEF_NODE_NAME.pem /etc/chef/client.pem
@@ -68,6 +66,7 @@ Vagrant.configure(2) do |config|
     sudo chmod 777 /etc/chef/client.pem
     sudo chmod a+r /etc/chef/client.rb
 
+    cd ~/development
     berks install -b cookbooks/Berksfile
     echo 'Starting chef-zero'
     sudo chef-zero &
