@@ -21,7 +21,12 @@ Vagrant.configure(2) do |config|
 
   # The apps cookbook looks for the project code in the user's homedir,
   # so the project folder is synced there.
-  #config.vm.synced_folder ".", "/home/vagrant/_default"
+  # The mount_options are used so that rails doesn't throw an error for 
+  # world writable dirs in a Windows host.
+  config.vm.synced_folder ".", "/home/vagrant/development",
+    owner: "vagrant",
+    group: "vagrant",
+    mount_options: ["dmode=775,fmode=664"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -46,7 +51,7 @@ Vagrant.configure(2) do |config|
     sudo aptitude update
     sudo aptitude install -q -y ruby-dev build-essential
 
-    cd /vagrant
+    cd ~/development
     mkdir ~/.chef
 
     # The following line installs chefdk to get the berks tools,
@@ -69,19 +74,14 @@ Vagrant.configure(2) do |config|
     # The following command makes sure chef-zero is killed when the provisioning is over
     trap 'sudo kill $(jobs -pr)' SIGINT SIGTERM EXIT
 
+    knife environment create development -d "The dev environment."
     knife node create $CDO_CHEF_NODE_NAME --disable-editing
+    knife node environment_set $CDO_CHEF_NODE_NAME development
     berks upload -b cookbooks/Berksfile
     knife upload cookbooks
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-mysql::server]
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[apt]
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-authorized-keys]
-#    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-awscli]
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-home-ubuntu]
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-ruby-2.0]
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-mysql::client]
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-newrelic]
-#    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-apps]
-    knife node run_list add $CDO_CHEF_NODE_NAME recipe[cdo-solr]
+
+    knife role from file .chef/vagrant_dev_role.json
+    knife node run_list add $CDO_CHEF_NODE_NAME "role[vagrant_dev]"
 
     sudo chef-client -S $CDO_CHEF_SERVER_URL -N $CDO_CHEF_NODE_NAME
   SHELL
