@@ -17,16 +17,8 @@ Vagrant.configure(2) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-   config.vm.network "forwarded_port", guest: 3000, host: 3000
-
-  # The apps cookbook looks for the project code in the user's homedir,
-  # so the project folder is synced there.
-  # The mount_options are used so that rails doesn't throw an error for 
-  # world writable dirs in a Windows host.
-  config.vm.synced_folder ".", "/home/vagrant/development",
-    owner: "vagrant",
-    group: "vagrant",
-    mount_options: ["dmode=775,fmode=775"]
+  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  config.vm.network "forwarded_port", guest: 3001, host: 3001
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -66,6 +58,9 @@ Vagrant.configure(2) do |config|
     sudo chmod 777 /etc/chef/client.pem
     sudo chmod a+r /etc/chef/client.rb
 
+    # The apps cookbook looks for the project code in the user's homedir,
+    # so the project folder is linked there.
+    cp -rs /vagrant/ ~/development
     cd ~/development
     berks install -b cookbooks/Berksfile
     echo 'Starting chef-zero'

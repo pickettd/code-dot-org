@@ -59,7 +59,7 @@ def load_configuration()
     'pdf_port_markdown'           => 8081,
     'pegasus_db_name'             => rack_env == :production ? 'pegasus' : "pegasus_#{rack_env}",
     'pegasus_honeybadger_api_key' =>'00000000',
-    'pegasus_port'                => 3000,
+    'pegasus_port'                => 3001,
     'pegasus_unicorn_name'        => 'pegasus',
     'pegasus_workers'             => 8,
     'poste_host'                  => 'localhost.code.org:3000',
