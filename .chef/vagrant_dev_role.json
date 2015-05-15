@@ -6,6 +6,9 @@
     "cdo-repository": {
       "repository": "https://github.com/code-dot-org/code-dot-org.git",
       "timeout": 1200
+    },
+    "cdo-apps": {
+      "local_mysql": true
     }
   },
   "override_attributes": {
