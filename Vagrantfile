@@ -37,11 +37,48 @@ Vagrant.configure(2) do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    aptitude update
-    aptitude upgrade
-    DEBIAN_FRONTEND=noninteractive aptitude install -q -y git mysql-server mysql-client libmysqlclient-dev libxslt1-dev libssl-dev zlib1g-dev imagemagick libmagickcore-dev libmagickwand-dev nodejs npm openjdk-7-jre-headless libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev curl pdftk ruby2.0 ruby2.0-dev
-    ln -sf /usr/bin/ruby2.0 /usr/bin/ruby
-    ln -sf /usr/bin/gem2.0 /usr/bin/gem
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    export CDO_CHEF_NODE_NAME="vagrant"
+    export CDO_CHEF_ORG_NAME="code-dot-org"
+    export CDO_CHEF_SERVER_URL="http://127.0.0.1:8889"
+
+    sudo aptitude update
+    sudo aptitude install -q -y ruby-dev build-essential
+
+    # The following line installs chefdk to get the berks tools,
+    # Chef can also be installed from the downloaded install script: sudo bash ./install.sh -v 11.16.4
+    sudo wget -N --quiet opscode.com/chef/install.sh && sudo bash ./install.sh -P chefdk -v 0.4.0
+
+    sudo gem install chef-zero --no-rdoc --no-ri
+    sudo gem install chef -v 11.16.4 --no-rdoc --no-ri
+
+    mkdir ~/.chef
+    openssl genrsa 2048 > ~/.chef/$CDO_CHEF_NODE_NAME.pem 2>/dev/null
+    sudo cp -f ~/.chef/$CDO_CHEF_NODE_NAME.pem /etc/chef/validation.pem
+    sudo cp -f ~/.chef/$CDO_CHEF_NODE_NAME.pem /etc/chef/client.pem
+    sudo chmod 777 /etc/chef/validation.pem
+    sudo chmod 777 /etc/chef/client.pem
+    sudo chmod a+r /etc/chef/client.rb
+
+    # The apps cookbook looks for the project code in the user's homedir,
+    # so the project folder is linked there.
+    cp -rs /vagrant/ ~/development
+    cd ~/development
+    berks install -b cookbooks/Berksfile
+    echo 'Starting chef-zero'
+    sudo chef-zero &
+    # The following command makes sure chef-zero is killed when the provisioning is over
+    trap 'sudo kill $(jobs -pr)' SIGINT SIGTERM EXIT
+
+    knife environment create development -d "The dev environment."
+    knife node create $CDO_CHEF_NODE_NAME --disable-editing
+    knife node environment_set $CDO_CHEF_NODE_NAME development
+    berks upload -b cookbooks/Berksfile
+    knife upload cookbooks
+
+    knife role from file .chef/vagrant_dev_role.json
+    knife node run_list add $CDO_CHEF_NODE_NAME "role[vagrant_dev]"
+
+    sudo chef-client -S $CDO_CHEF_SERVER_URL -N $CDO_CHEF_NODE_NAME
   SHELL
 end

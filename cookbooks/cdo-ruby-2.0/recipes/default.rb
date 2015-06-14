@@ -41,9 +41,15 @@ execute "pristine-gems" do
   command "gem pristine --all"
   user "root"
   action :nothing
+  notifies :run, "execute[install-bundler]", :immediately
 end
 
-gem_package "bundler"
+execute "install-bundler" do
+  command "sudo gem install bundler"
+  user node[:current_user]
+  group node[:current_user]
+  action :nothing
+end
 
 # These packages are used by Gems we install via Bundler later.
 apt_package 'libxslt1-dev'

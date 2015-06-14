@@ -12,10 +12,11 @@ template "/home/#{node[:current_user]}/.gemrc" do
 end
 
 git "/home/#{node[:current_user]}/#{node.chef_environment}" do
-  repository 'git@github.com:code-dot-org/code-dot-org.git'
+  repository node['cdo-repository']['repository']
   action :checkout
   checkout_branch node.chef_environment
   user node[:current_user]
+  timeout node['cdo-repository']['timeout']
   notifies :run, "execute[select-upstream-branch]", :immediately
 end
 

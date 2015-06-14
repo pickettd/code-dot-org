@@ -19,6 +19,7 @@ directory "/etc/postfix" do
   action :create
 end
 
+=begin
 [
   "dynamicmaps.cf",
   "main.cf",
@@ -64,6 +65,7 @@ end
     notifies :restart, "service[postfix]"
   end
 end
+=end
 
 service "postfix" do
   action [:enable, :start]
