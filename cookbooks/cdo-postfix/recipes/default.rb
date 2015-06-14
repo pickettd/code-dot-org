@@ -13,8 +13,8 @@ service "postfix" do
 end
 
 directory "/etc/postfix" do
-  owner "root"
-  group "root"
+  owner "postfix"
+  group "postfix"
   mode "0755"
   action :create
 end
