@@ -43,9 +43,9 @@ def load_configuration()
     'dashboard_devise_pepper'     => 'not a pepper!',
     'dashboard_secret_key_base'   => 'not a secret',
     'dashboard_honeybadger_api_key' =>'00000000',
-    'dashboard_port'              => 3000,
+    'dashboard_port'              => 8080,
     'dashboard_unicorn_name'      => 'dashboard',
-    'dashboard_enable_pegasus'    => false,
+    'dashboard_enable_pegasus'    => rack_env == :development,
     'dashboard_workers'           => 8,
     'db_reader'                   => 'mysql://root@localhost/',
     'db_writer'                   => 'mysql://root@localhost/',
@@ -60,7 +60,7 @@ def load_configuration()
     'pdf_port_markdown'           => 8081,
     'pegasus_db_name'             => rack_env == :production ? 'pegasus' : "pegasus_#{rack_env}",
     'pegasus_honeybadger_api_key' =>'00000000',
-    'pegasus_port'                => 3001,
+    'pegasus_port'                => 8081,
     'pegasus_unicorn_name'        => 'pegasus',
     'pegasus_workers'             => 8,
     'poste_host'                  => 'localhost.code.org:3000',
@@ -80,6 +80,7 @@ def load_configuration()
     'lint'                        => rack_env == :staging || rack_env == :development,
     'assets_s3_bucket'             => "cdo-v3-assets",
     'assets_s3_directory'          => rack_env == :production ? 'assets' : "assets_#{rack_env}",
+    'vagrant_chef_env'            =>  ENV['CDO_CHEF_NODE_NAME'] == 'vagrant',
 
   }.tap do |config|
     raise "'#{rack_env}' is not known environment." unless config['rack_envs'].include?(rack_env)

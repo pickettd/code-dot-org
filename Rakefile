@@ -108,8 +108,13 @@ namespace :build do
       RakeUtils.bundle_install
 
       if CDO.daemon
+        if CDO.vagrant_chef_env
+          HipChat.log 'Creating local <b>dashboard</b> database...'
+          create_database CDO.dashboard_db_writer
+        end
+
         HipChat.log 'Migrating <b>dashboard</b> database...'
-        RakeUtils.rake 'db:migrate'
+        RakeUtils.rake 'db:schema:load'
 
         HipChat.log 'Seeding <b>dashboard</b>...'
         RakeUtils.rake 'seed:incremental'
@@ -138,6 +143,11 @@ namespace :build do
       RakeUtils.bundle_install
 
       if CDO.daemon
+        if CDO.vagrant_chef_env
+          HipChat.log 'Creating local <b>pegasus</b> database...'
+          create_database CDO.pegasus_db_writer
+        end
+
         HipChat.log 'Migrating <b>pegasus</b> database...'
         begin
           RakeUtils.rake 'db:migrate'

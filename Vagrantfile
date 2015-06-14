@@ -17,7 +17,8 @@ Vagrant.configure(2) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 8081, host: 8081
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -62,23 +63,23 @@ Vagrant.configure(2) do |config|
 
     # The apps cookbook looks for the project code in the user's homedir,
     # so the project folder is linked there.
-    cp -rs /vagrant/ ~/development
-    cd ~/development
+    cp -rs /vagrant/ ~/staging
+    cd ~/staging
     berks install -b cookbooks/Berksfile
     echo 'Starting chef-zero'
     sudo chef-zero &
     # The following command makes sure chef-zero is killed when the provisioning is over
     trap 'sudo kill $(jobs -pr)' SIGINT SIGTERM EXIT
 
-    knife environment create development -d "The dev environment."
+    knife environment create staging -d "The staging environment."
     knife node create $CDO_CHEF_NODE_NAME --disable-editing
-    knife node environment_set $CDO_CHEF_NODE_NAME development
+    knife node environment_set $CDO_CHEF_NODE_NAME staging
     berks upload -b cookbooks/Berksfile
     knife upload cookbooks
 
     knife role from file .chef/vagrant_dev_role.json
     knife node run_list add $CDO_CHEF_NODE_NAME "role[vagrant_dev]"
 
-    sudo chef-client -S $CDO_CHEF_SERVER_URL -N $CDO_CHEF_NODE_NAME
+    sudo -E chef-client -S $CDO_CHEF_SERVER_URL -N $CDO_CHEF_NODE_NAME
   SHELL
 end
