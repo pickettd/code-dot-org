@@ -15,14 +15,12 @@ Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
 
   # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  # within the machine from a port on the host machine.
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 8081, host: 8081
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
   config.vm.provider "virtualbox" do |vb|
     # Display the VirtualBox GUI when booting the machine
     # vb.gui = true
@@ -31,17 +29,40 @@ Vagrant.configure(2) do |config|
     vb.memory = "2048"
   end
 
-  # View the documentation for the provider you are using for more
-  # information on available options.
+  # The following shell provisioner sets up an 8GB swapfile if
+  # one doesn't exist already.
+  config.vm.provision "shell", privileged: true, inline: <<-SHELL1
+    grep -q "swapfile" /etc/fstab
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    aptitude update
-    aptitude upgrade
-    DEBIAN_FRONTEND=noninteractive aptitude install -q -y git mysql-server mysql-client libmysqlclient-dev libxslt1-dev libssl-dev zlib1g-dev imagemagick libmagickcore-dev libmagickwand-dev nodejs npm openjdk-7-jre-headless libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev curl pdftk ruby2.0 ruby2.0-dev
-    ln -sf /usr/bin/ruby2.0 /usr/bin/ruby
-    ln -sf /usr/bin/gem2.0 /usr/bin/gem
-  SHELL
+    if [ $? -ne 0 ]; then
+      echo 'swapfile not found. Adding swapfile.'
+      fallocate -l 8000M /swapfile
+      chmod 600 /swapfile
+      mkswap /swapfile
+      swapon /swapfile
+      echo '/swapfile none swap defaults 0 0' >> /etc/fstab
+    else
+      echo 'swapfile found. No changes made.'
+    fi
+  SHELL1
+
+  # The following chef client provisioner contacts CDO's chef server
+  # and sets up the VM with the adhoc environment in the unmonitored-standalone role.
+  # The node name must be unique and not already exist on the chef server (delete between provisionings).
+  # The code-dot-org-validator.pem file must be in the project root directory with the Vagrantfile.
+  config.vm.provision "chef_client" do |chef|
+    chef.version = "11.16.4"
+    chef.chef_server_url = "https://api.opscode.com/organizations/code-dot-org"
+    chef.validation_key_path = "code-dot-org-validator.pem"
+    chef.validation_client_name = "code-dot-org-validator"
+    chef.node_name = "pickettd"
+    chef.environment = "adhoc"
+    chef.add_role "unmonitored-standalone"
+    chef.enable_reporting = false
+    chef.attempts = 1
+
+    chef.delete_node = false
+    chef.delete_client = false
+  end
+
 end
