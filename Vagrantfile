@@ -59,7 +59,7 @@ Vagrant.configure(2) do |config|
     chef.environment = "adhoc"
     chef.add_role "unmonitored-standalone"
     chef.enable_reporting = false
-    chef.attempts = 1
+    chef.attempts = 2
 
     chef.delete_node = false
     chef.delete_client = false
