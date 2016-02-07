@@ -1,0 +1,4 @@
+CDO:
+  image: "wjordan/code-dot-org:0.2"
+  volumes:
+    - /vagrant:/home/ubuntu/adhoc
