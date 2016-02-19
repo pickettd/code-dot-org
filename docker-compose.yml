@@ -1,0 +1,6 @@
+CDO:
+  image: "wjordan/code-dot-org:0.2"
+  volumes:
+    - /vagrant:/home/ubuntu/adhoc
+  ports:
+    - "10.10.10.10:3000:3000"
