@@ -11,7 +11,7 @@ synced_folders:
   # vboxsf: best compatibility and ease of setup, but poor performance.
   # default: defaults to nfs2 on Mac and smb2 on Windows.
   # '': disable synced folders. Useful in case you want to use 'individual_mounts' option below.
-  type: 'default'
+  type: 'rsync'
   # smb_user, smb_password - The username and password used for authentication to mount the SMB mount.
   # This is usually your Windows username and password, unless you created a dedicated user for vagrant.
   # If using the 'smb2' type above the user and share will be configured automatically.
@@ -26,14 +26,14 @@ synced_folders:
   rsync_folders:
     #- "projectA"  # rsync projectA folder
     #- "projectB"  # rsync projectB folder
-    #- ""  # rsync the whole <Projects> folder. WARNING: don't do this if your <Projects> folder is big.
+    - ""  # rsync the whole <Projects> folder. WARNING: don't do this if your <Projects> folder is big.
   # Coalescing threshold in seconds for https://github.com/smerrill/vagrant-gatling-rsync
   rsync_latency: 0.5
   # Start rsync-auto automatically (Mac only for now)
   rsync_auto: true
   # Patterns excluded from rsync. Passed as --exclude <pattern> to rsync.
   rsync_exclude:
-    - ".git/"
+    #- ".git/"
     #- "files/"
   # List of folders to mount individually. This is really only needed in the case where you want a container to write
   # something back to the Host OS. If that describes your situation, use type = vboxsf. If you just want more control
