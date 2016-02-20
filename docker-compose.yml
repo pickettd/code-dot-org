@@ -4,3 +4,4 @@ CDO:
     - /vagrant:/home/ubuntu/adhoc
   ports:
     - "10.10.10.10:3000:3000"
+  command: top -b
