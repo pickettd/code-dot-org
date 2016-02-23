@@ -3,5 +3,11 @@ CDO:
   volumes:
     - .:/home/ubuntu/adhoc
   ports:
-    - "10.10.10.10:3000:3000"
+    - "3000:3000"
+  environment:
+    - RAILS_ENV=adhoc
+    - RACK_ENV=adhoc
+    - LANG=en_US.UTF-8
+    - LANGUAGE=en_US.UTF-8
+    - LC_ALL=en_US.UTF-8
   command: top -b
