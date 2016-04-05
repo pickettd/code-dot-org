@@ -1,7 +1,30 @@
+chefdata:
+  image: tianon/true
+  volumes:
+    - ./.chef:/tmp/chef
+
+# Attach the image containing the Chef installation
+chef:
+  image: releasequeue/chef-client:11.18.6-1
+  # Override default command to use this container as a volume container
+  command: /bin/true
+
 CDO:
   image: "wjordan/code-dot-org:0.2"
   volumes:
     - .:/home/ubuntu/adhoc
+  volumes_from:
+    #- chefdata
+    - dataonly
+    - chef
   ports:
-    - "10.10.10.10:3000:3000"
-  command: top -b
+    - "3000:3000"
+  environment:
+    - RAILS_ENV=adhoc
+    - RACK_ENV=adhoc
+    - LANG=en_US.UTF-8
+    - LANGUAGE=en_US.UTF-8
+    - LC_ALL=en_US.UTF-8
+    - PATH /opt/chef/bin:$PATH
+  entrypoint: "/opt/chef/bin/chef-client"
+  command: "-c /tmp/chef/zero.rb -z -j /tmp/chef/first-boot.json"
