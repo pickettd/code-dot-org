@@ -14,8 +14,7 @@ CDO:
   volumes:
     - .:/home/ubuntu/adhoc
   volumes_from:
-    #- chefdata
-    - dataonly
+    - chefdata
     - chef
   ports:
     - "3000:3000"
